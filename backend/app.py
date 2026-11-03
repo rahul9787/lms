@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import mysql.connector
+import psycopg
+from psycopg.rows import dict_row
 import os
 
 app = Flask(__name__)
@@ -8,11 +9,13 @@ CORS(app)
 
 
 def get_db_connection():
-    return mysql.connector.connect(
+    return psycopg.connect(
         host=os.getenv("DB_HOST", "database"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", "rootpassword"),
-        database=os.getenv("DB_NAME", "college_event_db")
+        port=os.getenv("DB_PORT", "5432"),
+        user=os.getenv("DB_USER", "lms_user"),
+        password=os.getenv("DB_PASSWORD"),
+        dbname=os.getenv("DB_NAME", "lms_db"),
+        row_factory=dict_row
     )
 
 
@@ -23,101 +26,100 @@ def home():
     })
 
 
+@app.route("/health")
+def health():
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+
+        return jsonify({
+            "status": "healthy",
+            "database": "connected"
+        }), 200
+
+    except psycopg.Error:
+        return jsonify({
+            "status": "unhealthy",
+            "database": "disconnected"
+        }), 503
+
+
 @app.route("/api/events", methods=["GET"])
 def get_events():
-
-    connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
-
-    cursor.execute("SELECT * FROM events")
-
-    events = cursor.fetchall()
-
-    cursor.close()
-    connection.close()
+    with get_db_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM events ORDER BY id")
+            events = cursor.fetchall()
 
     return jsonify(events)
 
 
 @app.route("/api/register", methods=["POST"])
 def register():
+    data = request.get_json(silent=True) or {}
 
-    data = request.json
+    required_fields = [
+        "event_id",
+        "student_name",
+        "email",
+        "college",
+        "department",
+        "phone"
+    ]
 
-    event_id = data.get("event_id")
-    student_name = data.get("student_name")
-    email = data.get("email")
-    college = data.get("college")
-    department = data.get("department")
-    phone = data.get("phone")
+    if any(data.get(field) is None for field in required_fields):
+        return jsonify({"error": "All registration fields are required"}), 400
 
-    connection = get_db_connection()
-    cursor = connection.cursor()
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
 
-    cursor.execute(
-        """
-        SELECT available_seats
-        FROM events
-        WHERE id = %s
-        """,
-        (event_id,)
-    )
+                cursor.execute(
+                    """
+                    UPDATE events
+                    SET available_seats = available_seats - 1
+                    WHERE id = %s AND available_seats > 0
+                    RETURNING id
+                    """,
+                    (data["event_id"],)
+                )
 
-    event = cursor.fetchone()
+                event = cursor.fetchone()
 
-    if not event:
-        cursor.close()
-        connection.close()
+                if not event:
+                    cursor.execute(
+                        "SELECT id FROM events WHERE id = %s",
+                        (data["event_id"],)
+                    )
 
-        return jsonify({
-            "error": "Event not found"
-        }), 404
+                    if not cursor.fetchone():
+                        return jsonify({"error": "Event not found"}), 404
 
-    if event[0] <= 0:
-        cursor.close()
-        connection.close()
+                    return jsonify({"error": "No seats available"}), 400
 
-        return jsonify({
-            "error": "No seats available"
-        }), 400
+                cursor.execute(
+                    """
+                    INSERT INTO registrations
+                    (event_id, student_name, email, college, department, phone)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        data["event_id"],
+                        data["student_name"],
+                        data["email"],
+                        data["college"],
+                        data["department"],
+                        data["phone"]
+                    )
+                )
 
-    cursor.execute(
-        """
-        INSERT INTO registrations
-        (event_id, student_name, email, college, department, phone)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-        (
-            event_id,
-            student_name,
-            email,
-            college,
-            department,
-            phone
-        )
-    )
+        return jsonify({"message": "Registration successful"}), 201
 
-    cursor.execute(
-        """
-        UPDATE events
-        SET available_seats = available_seats - 1
-        WHERE id = %s
-        """,
-        (event_id,)
-    )
-
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    return jsonify({
-        "message": "Registration successful"
-    })
+    except psycopg.Error:
+        app.logger.exception("Registration database operation failed")
+        return jsonify({"error": "Registration failed"}), 500
 
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=5000
-    )
+    app.run(host="0.0.0.0", port=5000)
