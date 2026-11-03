@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>College Event Registration Portal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .event {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>College Event Registration Portal</h1>
+    <p>Upcoming Events</p>
+</header>
+
+<div class="container">
+
+    <div id="events">
+        Loading events...
+    </div>
+
+</div>
+
+<script>
+
+const API_URL = "/api";
+
+async function loadEvents() {
+
+    const response = await fetch(`${API_URL}/events`);
+
+    const events = await response.json();
+
+    const container = document.getElementById("events");
+
+    container.innerHTML = "";
+
+    events.forEach(event => {
+
+        container.innerHTML += `
+            <div class="event">
+
+                <h2>${event.title}</h2>
+
+                <p>${event.description}</p>
+
+                <p>
+                    <strong>Date:</strong>
+                    ${event.event_date}
+                </p>
+
+                <p>
+                    <strong>Venue:</strong>
+                    ${event.venue}
+                </p>
+
+                <p>
+                    <strong>Available Seats:</strong>
+                    ${event.available_seats}
+                </p>
+
+                <button onclick="register(${event.id})">
+                    Register
+                </button>
+
+            </div>
+        `;
+    });
+}
+
+
+async function register(eventId) {
+
+    const name = prompt("Enter your name:");
+
+    const email = prompt("Enter your email:");
+
+    const college = prompt("Enter your college:");
+
+    const department = prompt("Enter your department:");
+
+    const phone = prompt("Enter your phone:");
+
+    const response = await fetch(`${API_URL}/register`, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            event_id: eventId,
+
+            student_name: name,
+
+            email: email,
+
+            college: college,
+
+            department: department,
+
+            phone: phone
+
+        })
+
+    });
+
+    const result = await response.json();
+
+    alert(result.message || result.error);
+
+    loadEvents();
+}
+
+
+loadEvents();
+
+</script>
+
+</body>
+
+</html>
