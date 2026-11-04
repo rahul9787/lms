@@ -24,7 +24,7 @@ services:
 
 
   backend:
-  image: ${DOCKERHUB_USERNAME}/lms-backend:${IMAGE_TAG}
+    image: ${DOCKERHUB_USERNAME}/lms-backend:${IMAGE_TAG}
 
     container_name: lms-backend
     restart: unless-stopped
@@ -56,7 +56,7 @@ services:
 
 
   frontend:
-  image: ${DOCKERHUB_USERNAME}/lms-frontend:${IMAGE_TAG}
+    image: ${DOCKERHUB_USERNAME}/lms-frontend:${IMAGE_TAG}
 
     container_name: lms-frontend
     restart: unless-stopped
