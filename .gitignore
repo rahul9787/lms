@@ -10,3 +10,4 @@ venv/
 
 # Allow example configuration
 !.env.example
+.deployment/
