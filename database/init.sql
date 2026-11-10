@@ -1,11 +1,17 @@
+-- LMS Database Initialization
+
+-- Users table for Spring Boot authentication
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'student'
+    role VARCHAR(20) NOT NULL DEFAULT 'STUDENT'
+        CHECK (role IN ('STUDENT', 'TRAINER')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Existing LMS events table
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
@@ -16,6 +22,7 @@ CREATE TABLE IF NOT EXISTS events (
     available_seats INTEGER NOT NULL
 );
 
+-- Event registrations table
 CREATE TABLE IF NOT EXISTS registrations (
     id SERIAL PRIMARY KEY,
     event_id INTEGER NOT NULL,
@@ -25,34 +32,13 @@ CREATE TABLE IF NOT EXISTS registrations (
     department VARCHAR(100),
     phone VARCHAR(20),
     registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
+-- Sample LMS events
 INSERT INTO events
 (title, description, event_date, venue, total_seats, available_seats)
 VALUES
-(
-    'Technical Symposium',
-    'College technical symposium',
-    '2027-01-10',
-    'Main Auditorium',
-    100,
-    100
-),
-(
-    'Hackathon 2027',
-    '24 hour coding hackathon',
-    '2027-02-20',
-    'Computer Lab',
-    50,
-    50
-),
-(
-    'Cultural Fest',
-    'Annual college cultural festival',
-    '2027-03-05',
-    'College Ground',
-    500,
-    500
-);
+('Technical Symposium', 'College technical symposium', '2027-01-10', 'Main Auditorium', 100, 100),
+('Hackathon 2027', '24 hour coding hackathon', '2027-02-20', 'Computer Lab', 50, 50),
+('Cultural Fest', 'Annual college cultural festival', '2027-03-05', 'College Ground', 500, 500);
