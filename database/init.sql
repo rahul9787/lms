@@ -1,6 +1,6 @@
 -- LMS Database Initialization
 
--- Users table for Spring Boot authentication
+-- Users table for authentication
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -11,34 +11,22 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Existing LMS events table
-CREATE TABLE IF NOT EXISTS events (
+-- Courses table
+CREATE TABLE IF NOT EXISTS courses (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    category VARCHAR(100),
     description TEXT,
-    event_date DATE NOT NULL,
-    venue VARCHAR(200),
-    total_seats INTEGER NOT NULL,
-    available_seats INTEGER NOT NULL
+    level VARCHAR(30) DEFAULT 'Beginner',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Event registrations table
-CREATE TABLE IF NOT EXISTS registrations (
-    id SERIAL PRIMARY KEY,
-    event_id INTEGER NOT NULL,
-    student_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL,
-    college VARCHAR(200),
-    department VARCHAR(100),
-    phone VARCHAR(20),
-    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (event_id) REFERENCES events(id)
-);
-
--- Sample LMS events
-INSERT INTO events
-(title, description, event_date, venue, total_seats, available_seats)
+-- Sample courses
+INSERT INTO courses (title, category, description, level)
 VALUES
-('Technical Symposium', 'College technical symposium', '2027-01-10', 'Main Auditorium', 100, 100),
-('Hackathon 2027', '24 hour coding hackathon', '2027-02-20', 'Computer Lab', 50, 50),
-('Cultural Fest', 'Annual college cultural festival', '2027-03-05', 'College Ground', 500, 500);
+('AWS Cloud Fundamentals', 'Cloud Computing', 'Learn AWS services, IAM, EC2 and cloud storage.', 'Beginner'),
+('Python Programming', 'Programming', 'Learn Python syntax, functions and programming fundamentals.', 'Beginner'),
+('Docker and DevOps', 'Engineering', 'Learn Docker, containers, Compose and CI/CD.', 'Intermediate'),
+('Java and Spring Boot', 'Backend Development', 'Learn Java and build REST APIs using Spring Boot.', 'Intermediate'),
+('Data Analytics', 'Analytics', 'Learn data preparation, analysis and visualization.', 'Beginner'),
+('HTML CSS and JavaScript', 'Web Development', 'Build responsive and interactive websites.', 'Beginner');
