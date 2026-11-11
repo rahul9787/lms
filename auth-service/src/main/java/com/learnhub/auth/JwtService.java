@@ -1,5 +1,7 @@
+
 package com.learnhub.auth;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,5 +34,23 @@ public class JwtService {
                 .expiration(expiry)
                 .signWith(key)
                 .compact();
+    }
+
+    public Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Claims claims = extractClaims(token);
+            return claims.getSubject() != null
+                    && claims.getExpiration().after(new Date());
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 }
