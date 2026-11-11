@@ -1,160 +1,295 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>College Event Registration Portal</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #f4f6f8;
-        }
-
-        header {
-            background: #1f2937;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1000px;
-            margin: 30px auto;
-        }
-
-        .event {
-            background: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub | LMS</title>
+  <style>
+    :root {
+      --navy: #14213d; --blue: #315efb; --blue-dark: #2449d8;
+      --bg: #f5f7fb; --text: #182230; --muted: #667085;
+      --line: #e5eaf2; --white: #fff; --green: #168653;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: var(--text); background: var(--bg); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1.05fr .95fr; }
+    .brand-panel {
+      background: linear-gradient(145deg, #14213d, #263f78);
+      color: white; padding: 64px clamp(28px, 7vw, 100px);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .brand { font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+    .brand span { color: #91b4ff; }
+    .brand-copy { max-width: 520px; margin: auto 0; }
+    .brand-copy h1 { font-size: clamp(36px, 5vw, 58px); line-height: 1.08; margin: 0 0 20px; }
+    .brand-copy p { color: #d1dcf4; font-size: 17px; line-height: 1.7; }
+    .brand-note { color: #c3d0e9; font-size: 13px; }
+    .auth-side { display: grid; place-items: center; padding: 36px 22px; }
+    .auth-card { width: min(100%, 430px); background: var(--white); border: 1px solid var(--line);
+      border-radius: 18px; padding: 36px; box-shadow: 0 14px 45px rgba(20,33,61,.07); }
+    .auth-card h2 { margin: 0 0 8px; font-size: 28px; }
+    .sub { color: var(--muted); margin: 0 0 26px; line-height: 1.5; }
+    .field { margin: 16px 0; }
+    label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    input { width: 100%; padding: 13px 14px; border: 1px solid #d7deea; border-radius: 9px; outline: none; }
+    input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(49,94,251,.12); }
+    .primary { width: 100%; border: 0; border-radius: 9px; padding: 14px; background: var(--blue); color: white; font-weight: 700; margin-top: 8px; }
+    .primary:hover { background: var(--blue-dark); }
+    .switch { text-align: center; color: var(--muted); font-size: 14px; margin: 22px 0 0; }
+    .link { color: var(--blue); font-weight: 700; border: 0; background: none; padding: 0; }
+    .message { font-size: 13px; margin-top: 14px; min-height: 18px; color: #b42318; }
+    .topbar { background: white; border-bottom: 1px solid var(--line); padding: 17px clamp(20px, 6vw, 84px);
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .topbar .brand { color: var(--navy); }
+    .top-actions { display: flex; align-items: center; gap: 18px; }
+    .user-label { color: var(--muted); font-size: 14px; }
+    .logout { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; color: var(--navy); font-weight: 700; }
+    .dashboard { max-width: 1180px; margin: 0 auto; padding: 46px 24px 70px; }
+    .welcome { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+    .welcome h1 { margin: 0 0 9px; font-size: clamp(28px, 4vw, 38px); }
+    .welcome p { margin: 0; color: var(--muted); }
+    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: 1.4px; font-size: 11px; font-weight: 800; margin-bottom: 10px; }
+    .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .course { background: white; border: 1px solid var(--line); border-radius: 15px; overflow: hidden; }
+    .course-art { height: 145px; display: grid; place-items: center; color: white; font-size: 42px; font-weight: 800; }
+    .art-aws { background: linear-gradient(135deg, #f59e0b, #b45309); }
+    .art-python { background: linear-gradient(135deg, #2563eb, #153e8a); }
+    .art-devops { background: linear-gradient(135deg, #0f9f83, #145b67); }
+    .art-java { background: linear-gradient(135deg, #d94841, #7f1d1d); }
+    .art-data { background: linear-gradient(135deg, #805ad5, #44318a); }
+    .art-web { background: linear-gradient(135deg, #db4d9b, #7b2867); }
+    .course-body { padding: 20px; }
+    .tag { display: inline-block; background: #eef2ff; color: #344fc4; border-radius: 20px; padding: 5px 9px; font-size: 11px; font-weight: 700; }
+    .course h3 { margin: 13px 0 8px; font-size: 18px; }
+    .course p { color: var(--muted); font-size: 13px; line-height: 1.55; min-height: 40px; }
+    .course-foot { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 15px; display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    .course-foot strong { color: var(--green); }
+    .dashboard-note { color: var(--muted); font-size: 12px; margin-top: 26px; }
+    @media (max-width: 850px) {
+      .auth-shell { grid-template-columns: 1fr; }
+      .brand-panel { min-height: 260px; padding: 28px; }
+      .brand-copy { margin: 50px 0 20px; }
+      .brand-copy h1 { font-size: 36px; }
+      .brand-note { display: none; }
+      .course-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .auth-card { padding: 26px 22px; }
+      .course-grid { grid-template-columns: 1fr; }
+      .welcome { align-items: start; flex-direction: column; }
+      .topbar { padding: 15px 18px; }
+      .user-label { display: none; }
+    }
+  </style>
 </head>
-
 <body>
+  <!-- Login and signup screens -->
+  <main id="authView" class="auth-shell">
+    <section class="brand-panel">
+      <div class="brand">Learn<span>Hub</span></div>
+      <div class="brand-copy">
+        <h1>Learn something new. Build your future.</h1>
+        <p>Access your learning space, explore courses and continue developing your skills.</p>
+      </div>
+      <div class="brand-note">Learning Management System</div>
+    </section>
 
-<header>
-    <h1>College Event Registration Portal</h1>
-    <p>Upcoming Events</p>
-</header>
+    <section class="auth-side">
+      <div class="auth-card">
+        <form id="loginForm">
+          <h2>Welcome back</h2>
+          <p class="sub">Log in to continue to your courses.</p>
+          <div class="field">
+            <label for="loginEmail">Email address</label>
+            <input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+          </div>
+          <button class="primary" type="submit">Log in</button>
+          <div id="loginMessage" class="message" role="status"></div>
+          <p class="switch">Don't have an account? <button class="link" type="button" id="showSignup">Sign up</button></p>
+        </form>
 
-<div class="container">
+        <form id="signupForm" class="hidden">
+          <h2>Create an account</h2>
+          <p class="sub">Sign up to get access to the LMS.</p>
+          <div class="field">
+            <label for="signupName">Full name</label>
+            <input id="signupName" type="text" autocomplete="name" placeholder="Your full name" required>
+          </div>
+          <div class="field">
+            <label for="signupEmail">Email address</label>
+            <input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="signupPassword">Password</label>
+            <input id="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+          </div>
+          <button class="primary" type="submit">Create account</button>
+          <div id="signupMessage" class="message" role="status"></div>
+          <p class="switch">Already have an account? <button class="link" type="button" id="showLogin">Log in</button></p>
+        </form>
+      </div>
+    </section>
+  </main>
 
-    <div id="events">
-        Loading events...
-    </div>
+  <!-- Protected course dashboard; shown only after a successful login -->
+  <div id="dashboardView" class="hidden">
+    <header class="topbar">
+      <div class="brand">Learn<span>Hub</span></div>
+      <div class="top-actions">
+        <span id="userLabel" class="user-label"></span>
+        <button id="logoutButton" class="logout" type="button">Log out</button>
+      </div>
+    </header>
+    <main class="dashboard">
+      <div class="welcome">
+        <div>
+          <div class="eyebrow">Student learning space</div>
+          <h1 id="welcomeTitle">Your courses</h1>
+          <p>Explore your courses and keep learning at your own pace.</p>
+        </div>
+      </div>
+      <section class="course-grid" aria-label="Available courses">
+        <article class="course">
+          <div class="course-art art-aws">AWS</div>
+          <div class="course-body"><span class="tag">Cloud computing</span><h3>AWS Cloud Fundamentals</h3><p>Learn core AWS services, cloud concepts, IAM, EC2 and storage.</p><div class="course-foot"><span>Beginner</span><strong>Available</strong></div></div>
+        </article>
+        <article class="course">
+          <div class="course-art art-python">Py</div>
+          <div class="course-body"><span class="tag">Programming</span><h3>Python Programming</h3><p>Build programming foundations with Python syntax, functions and projects.</p><div class="course-foot"><span>Beginner</span><strong>Available</strong></div></div>
+        </article>
+        <article class="course">
+          <div class="course-art art-devops">DevOps</div>
+          <div class="course-body"><span class="tag">Engineering</span><h3>Docker &amp; DevOps</h3><p>Understand containers, images, Docker Compose and CI/CD workflows.</p><div class="course-foot"><span>Intermediate</span><strong>Available</strong></div></div>
+        </article>
+        <article class="course">
+          <div class="course-art art-java">Java</div>
+          <div class="course-body"><span class="tag">Backend development</span><h3>Java &amp; Spring Boot</h3><p>Learn Java fundamentals and build REST APIs with Spring Boot.</p><div class="course-foot"><span>Intermediate</span><strong>Available</strong></div></div>
+        </article>
+        <article class="course">
+          <div class="course-art art-data">Data</div>
+          <div class="course-body"><span class="tag">Analytics</span><h3>Data Analytics</h3><p>Explore data preparation, analysis and visualization fundamentals.</p><div class="course-foot"><span>Beginner</span><strong>Available</strong></div></div>
+        </article>
+        <article class="course">
+          <div class="course-art art-web">Web</div>
+          <div class="course-body"><span class="tag">Web development</span><h3>HTML, CSS &amp; JavaScript</h3><p>Create responsive web pages and interactive browser experiences.</p><div class="course-foot"><span>Beginner</span><strong>Available</strong></div></div>
+        </article>
+      </section>
+      <p class="dashboard-note">These are sample course cards for the initial frontend. We can connect them to the LMS courses API in a later step.</p>
+    </main>
+  </div>
 
-</div>
+  <script>
+    /*
+      Integration contract to align with the Spring Boot service:
+      POST /auth/register  JSON: { name, email, password }
+      POST /auth/login     JSON: { email, password }
+      Expected login response: { token, name } (we can adapt this to the actual API response).
+      Configure the frontend web server to proxy /auth/* to the Spring Boot container.
+    */
+    const AUTH_API_URL = "/auth";
 
-<script>
+    const authView = document.getElementById("authView");
+    const dashboardView = document.getElementById("dashboardView");
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
 
-const API_URL = "/api";
+    function showLogin() {
+      signupForm.classList.add("hidden");
+      loginForm.classList.remove("hidden");
+      clearMessages();
+    }
+    function showSignup() {
+      loginForm.classList.add("hidden");
+      signupForm.classList.remove("hidden");
+      clearMessages();
+    }
+    function clearMessages() {
+      document.getElementById("loginMessage").textContent = "";
+      document.getElementById("signupMessage").textContent = "";
+    }
+    function showDashboard(name) {
+      authView.classList.add("hidden");
+      dashboardView.classList.remove("hidden");
+      document.getElementById("welcomeTitle").textContent = `Welcome, ${name || "Learner"}!`;
+      document.getElementById("userLabel").textContent = name || "Signed in";
+    }
+    function showAuth() {
+      dashboardView.classList.add("hidden");
+      authView.classList.remove("hidden");
+      showLogin();
+    }
 
-async function loadEvents() {
+    document.getElementById("showSignup").addEventListener("click", showSignup);
+    document.getElementById("showLogin").addEventListener("click", showLogin);
 
-    const response = await fetch(`${API_URL}/events`);
-
-    const events = await response.json();
-
-    const container = document.getElementById("events");
-
-    container.innerHTML = "";
-
-    events.forEach(event => {
-
-        container.innerHTML += `
-            <div class="event">
-
-                <h2>${event.title}</h2>
-
-                <p>${event.description}</p>
-
-                <p>
-                    <strong>Date:</strong>
-                    ${event.event_date}
-                </p>
-
-                <p>
-                    <strong>Venue:</strong>
-                    ${event.venue}
-                </p>
-
-                <p>
-                    <strong>Available Seats:</strong>
-                    ${event.available_seats}
-                </p>
-
-                <button onclick="register(${event.id})">
-                    Register
-                </button>
-
-            </div>
-        `;
+    signupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = document.getElementById("signupMessage");
+      message.textContent = "Creating your account...";
+      try {
+        const response = await fetch(`${AUTH_API_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: document.getElementById("signupName").value.trim(),
+            email: document.getElementById("signupEmail").value.trim(),
+            password: document.getElementById("signupPassword").value
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || result.error || "Signup failed. Please try again.");
+        message.style.color = "#168653";
+        message.textContent = result.message || "Account created. You can now log in.";
+        signupForm.reset();
+      } catch (error) {
+        message.style.color = "#b42318";
+        message.textContent = error.message || "Unable to connect to the authentication service.";
+      }
     });
-}
 
-
-async function register(eventId) {
-
-    const name = prompt("Enter your name:");
-
-    const email = prompt("Enter your email:");
-
-    const college = prompt("Enter your college:");
-
-    const department = prompt("Enter your department:");
-
-    const phone = prompt("Enter your phone:");
-
-    const response = await fetch(`${API_URL}/register`, {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-
-            event_id: eventId,
-
-            student_name: name,
-
-            email: email,
-
-            college: college,
-
-            department: department,
-
-            phone: phone
-
-        })
-
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = document.getElementById("loginMessage");
+      message.textContent = "Signing in...";
+      message.style.color = "#667085";
+      try {
+        const response = await fetch(`${AUTH_API_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.getElementById("loginEmail").value.trim(),
+            password: document.getElementById("loginPassword").value
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || result.error || "Invalid email or password.");
+        if (!result.token) throw new Error("Login response did not contain a token. Check the Spring Boot API response format.");
+        sessionStorage.setItem("lmsToken", result.token);
+        sessionStorage.setItem("lmsUserName", result.name || "");
+        showDashboard(result.name || "Learner");
+        loginForm.reset();
+      } catch (error) {
+        message.style.color = "#b42318";
+        message.textContent = error.message || "Unable to connect to the authentication service.";
+      }
     });
 
-    const result = await response.json();
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      sessionStorage.removeItem("lmsToken");
+      sessionStorage.removeItem("lmsUserName");
+      showAuth();
+    });
 
-    alert(result.message || result.error);
-
-    loadEvents();
-}
-
-
-loadEvents();
-
-</script>
-
+    // Do not restore a dashboard without a session token.
+    const savedToken = sessionStorage.getItem("lmsToken");
+    if (savedToken) showDashboard(sessionStorage.getItem("lmsUserName") || "Learner");
+  </script>
 </body>
-
 </html>
