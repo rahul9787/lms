@@ -14,6 +14,12 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
+# Install curl for Docker health checks
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy executable JAR
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
