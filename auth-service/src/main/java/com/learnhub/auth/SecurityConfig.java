@@ -3,6 +3,7 @@ package com.learnhub.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -45,7 +46,11 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",
+                    HttpMethod.POST,
+                    "/auth/register",
+                    "/auth/login"
+                ).permitAll()
+                .requestMatchers(
                     "/actuator/health",
                     "/actuator/health/**"
                 ).permitAll()
