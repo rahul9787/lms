@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/auth")
@@ -58,6 +59,15 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                new CurrentUserResponse(authentication.getName())
+        );
+    }
+
     public record RegisterRequest(
             @NotBlank
             @Size(max = 100)
@@ -83,4 +93,6 @@ public class AuthController {
     ) {}
 
     public record MessageResponse(String message) {}
+
+    public record CurrentUserResponse(String email) {}
 }
