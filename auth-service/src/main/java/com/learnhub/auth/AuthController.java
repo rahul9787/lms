@@ -1,4 +1,10 @@
+
 package com.learnhub.auth;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +21,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(
+            @Valid @RequestBody RegisterRequest request) {
+
         try {
             String result = authService.register(
                     request.name(),
@@ -23,7 +31,8 @@ public class AuthController {
                     request.password()
             );
 
-            return ResponseEntity.ok(new MessageResponse(result));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageResponse(result));
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
@@ -32,10 +41,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(
+            @Valid @RequestBody LoginRequest request) {
+
         try {
             return ResponseEntity.ok(
-                    authService.login(request.email(), request.password())
+                    authService.login(
+                            request.email(),
+                            request.password()
+                    )
             );
 
         } catch (IllegalArgumentException e) {
@@ -44,7 +58,29 @@ public class AuthController {
         }
     }
 
-    public record RegisterRequest(String name, String email, String password) {}
-    public record LoginRequest(String email, String password) {}
+    public record RegisterRequest(
+            @NotBlank
+            @Size(max = 100)
+            String name,
+
+            @NotBlank
+            @Email
+            @Size(max = 150)
+            String email,
+
+            @NotBlank
+            @Size(min = 8, max = 72)
+            String password
+    ) {}
+
+    public record LoginRequest(
+            @NotBlank
+            @Email
+            String email,
+
+            @NotBlank
+            String password
+    ) {}
+
     public record MessageResponse(String message) {}
 }
